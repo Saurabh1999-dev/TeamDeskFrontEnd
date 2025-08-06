@@ -26,13 +26,11 @@ export default function ProjectsPage() {
     clearError
   } = useProjectsStore()
 
-  // Local state
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedStatus, setSelectedStatus] = useState('all')
   const [selectedPriority, setSelectedPriority] = useState('all')
   const [showOverdueOnly, setShowOverdueOnly] = useState(false)
 
-  // Modal states
   const [showAddModal, setShowAddModal] = useState(false)
   const [editingProject, setEditingProject] = useState<Project | null>(null)
   const [viewingProject, setViewingProject] = useState<Project | null>(null)
@@ -40,7 +38,6 @@ export default function ProjectsPage() {
   const [progressProject, setProgressProject] = useState<Project | null>(null)
   const [deleteLoading, setDeleteLoading] = useState(false)
 
-  // ✅ Fixed: Use predefined Tailwind classes to avoid purging issues
   const statusOptions = [
     { value: 'all', label: 'All Status', colorClass: 'bg-gray-100 text-gray-800' },
     { value: ProjectStatus.Planning, label: 'Planning', colorClass: 'bg-blue-100 text-blue-800' },
@@ -73,7 +70,6 @@ export default function ProjectsPage() {
     }
   }, [error, clearError])
 
-  // ✅ Performance: Memoize filtered projects
   const filteredProjects = useMemo(() => {
     
     return projects.filter(project => {
@@ -104,7 +100,6 @@ export default function ProjectsPage() {
     setViewingProject(project)
   }
 
-  // ✅ Fixed: Proper error handling and loading state for delete
   const handleDeleteProject = async () => {
     if (!deletingProject) return
 
@@ -156,7 +151,6 @@ export default function ProjectsPage() {
     }).format(amount)
   }
 
-  // ✅ Fixed: Use predefined classes for status colors
   const getStatusColorClass = (status: ProjectStatus) => {
     
     const statusOption = statusOptions.find(option => option.value === status)
@@ -206,7 +200,6 @@ export default function ProjectsPage() {
 
   return (
     <div className="p-6">
-      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
@@ -227,10 +220,8 @@ export default function ProjectsPage() {
         </motion.button>
       </div>
 
-      {/* Filters */}
       <div className="bg-white rounded-xl shadow-sm p-6 mb-6">
         <div className="flex flex-col lg:flex-row gap-4">
-          {/* Search */}
           <div className="flex-1 relative">
             <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-5 h-5" />
             <input
@@ -243,7 +234,6 @@ export default function ProjectsPage() {
             />
           </div>
           
-          {/* Status Filter */}
           <div className="flex items-center gap-3">
             <Filter className="w-5 h-5 text-gray-400" />
             <select
@@ -274,7 +264,6 @@ export default function ProjectsPage() {
             ))}
           </select>
 
-          {/* Overdue Filter */}
           <label className="flex items-center gap-2 cursor-pointer">
             <input
               type="checkbox"
@@ -291,7 +280,6 @@ export default function ProjectsPage() {
         </div>
       </div>
 
-      {/* Error State */}
       {error && (
         <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
           <div className="flex items-center gap-2">
@@ -302,7 +290,6 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* Projects Grid */}
       {loading ? (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
           {[...Array(6)].map((_, index) => (
@@ -329,10 +316,8 @@ export default function ProjectsPage() {
                 transition={{ delay: index * 0.1 }}
                 className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6 border border-gray-100 relative" // ✅ Added relative positioning
               >
-                {/* ✅ Fixed: Priority Indicator with proper positioning */}
                 <div className={`absolute top-0 left-0 w-1 h-full ${getPriorityIndicatorColor(project.priority)} rounded-l-xl`} />
                 
-                {/* Header */}
                 <div className="mb-4">
                   <div className="flex items-start justify-between mb-2">
                     <h3 className="font-semibold text-gray-900 text-lg line-clamp-1">
@@ -350,7 +335,6 @@ export default function ProjectsPage() {
                   </p>
                 </div>
 
-                {/* ✅ Fixed: Status and Priority with predefined classes */}
                 <div className="flex items-center gap-2 mb-4">
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColorClass(project.status)}`}>
                     {getProjectStatusString(project.status)}
@@ -360,7 +344,6 @@ export default function ProjectsPage() {
                   </span>
                 </div>
 
-                {/* Progress */}
                 <div className="mb-4">
                   <div className="flex items-center justify-between mb-2">
                     <span className="text-sm font-medium text-gray-700">Progress</span>
@@ -374,7 +357,6 @@ export default function ProjectsPage() {
                   </div>
                 </div>
 
-                {/* Details */}
                 <div className="space-y-2 text-sm mb-4">
                   <div className="flex items-center justify-between">
                     <div className="flex items-center gap-2 text-gray-600">
@@ -405,7 +387,6 @@ export default function ProjectsPage() {
                   </div>
                 </div>
 
-                {/* Tags */}
                 {project.tags.length > 0 && (
                   <div className="mb-4">
                     <div className="flex flex-wrap gap-1">
@@ -426,7 +407,6 @@ export default function ProjectsPage() {
                   </div>
                 )}
 
-                {/* Actions */}
                 <div className="flex items-center gap-2">
                   <button
                     onClick={() => handleViewProject(project)}
@@ -492,7 +472,6 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* Modals */}
       {showAddModal && (
         <AddEditProjectModal
           project={editingProject}
@@ -533,7 +512,7 @@ export default function ProjectsPage() {
           message={`Are you sure you want to delete "${deletingProject.name}"? This action cannot be undone.`}
           onCancel={() => setDeletingProject(null)}
           onConfirm={handleDeleteProject}
-          loading={deleteLoading} // ✅ Fixed: Use separate delete loading state
+          loading={deleteLoading}
         />
       )}
     </div>
