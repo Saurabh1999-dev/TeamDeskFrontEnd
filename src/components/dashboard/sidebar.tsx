@@ -42,7 +42,7 @@ export function Sidebar() {
   const filteredItems = navigationItems.filter(item => 
     user ? item.roles.includes(user.role) : false
   )
-debugger
+
   return (
     <aside className="w-64 h-screen bg-white shadow-xl border-r border-gray-100 flex flex-col">
       <div className="p-6 border-b border-gray-100">

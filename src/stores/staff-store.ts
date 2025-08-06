@@ -34,7 +34,7 @@ export const useStaffStore = create<StaffState>((set, get) => ({
   error: null,
 
   fetchStaff: async () => {
-    debugger
+    
     set({ loading: true, error: null })
     try {
       const response = await getAllStaff()

@@ -1,4 +1,3 @@
-// src/app/page.tsx
 'use client'
 
 import { useEffect } from 'react'
@@ -19,18 +18,19 @@ import { useAuthStore } from '@/stores/auth-store'
 import { Route } from 'next'
 
 export default function HomePage() {
-  const { isAuthenticated, checkAuth } = useAuthStore()
+  const { isAuthenticated, isLoading, checkAuth } = useAuthStore() // Changed 'loading' to 'isLoading'
   const router = useRouter()
 
   useEffect(() => {
     checkAuth()
   }, [checkAuth])
 
+  // Only redirect if we're specifically on the root page and authenticated
   useEffect(() => {
-    if (isAuthenticated) {
+    if (!isLoading && isAuthenticated) { // Changed 'loading' to 'isLoading'
       router.push('/dashboard')
     }
-  }, [isAuthenticated, router])
+  }, [isAuthenticated, isLoading, router]) // Changed 'loading' to 'isLoading'
 
   const features = [
     {
@@ -65,6 +65,16 @@ export default function HomePage() {
     },
   ]
 
+  // Show loading while checking authentication
+  if (isLoading) { // Changed 'loading' to 'isLoading'
+    return (
+      <div className="min-h-screen flex items-center justify-center">
+        <div className="w-8 h-8 border-4 border-blue-600 border-t-transparent rounded-full animate-spin"></div>
+      </div>
+    )
+  }
+
+  // If authenticated, show loading state while redirecting
   if (isAuthenticated) {
     return (
       <div className="min-h-screen flex items-center justify-center">

@@ -189,7 +189,7 @@ export const assignStaffToProject = async (
 // Keep all other API functions the same...
 export const deleteProject = async (id: string): Promise<{ success: boolean; message: string }> => {
   try {
-    const response = await api.delete<{ success: boolean; message: string }>(`/projects/${id}`)
+    const response = await api.delete<{ success: boolean; message: string }>(`/Project/${id}`)
     return response
   } catch (error) {
     console.error('Error deleting project:', error)

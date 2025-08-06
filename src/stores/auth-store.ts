@@ -1,4 +1,3 @@
-// src/stores/auth-store.ts
 import { create } from 'zustand'
 import { persist } from 'zustand/middleware'
 import { api } from '@/lib/api'
@@ -20,7 +19,7 @@ export const useAuthStore = create<AuthState>()(
     (set, get) => ({
       user: null,
       token: null,
-      isLoading: false,
+      isLoading: true, // Initialize as true to prevent premature redirects
       isAuthenticated: false,
 
       login: async (credentials) => {

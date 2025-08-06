@@ -1,7 +1,6 @@
-// src/app/(dashboard)/projects/page.tsx - Updated with enums
 'use client'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { Plus, Search, Filter, FolderOpen, Calendar, DollarSign, Users, AlertTriangle, Edit, Trash2, Eye, BarChart } from 'lucide-react'
 import { useProjectsStore } from '@/stores/projects-store'
@@ -39,18 +38,18 @@ export default function ProjectsPage() {
   const [viewingProject, setViewingProject] = useState<Project | null>(null)
   const [deletingProject, setDeletingProject] = useState<Project | null>(null)
   const [progressProject, setProgressProject] = useState<Project | null>(null)
+  const [deleteLoading, setDeleteLoading] = useState(false)
 
-  // ✅ Updated status options to use enums
+  // ✅ Fixed: Use predefined Tailwind classes to avoid purging issues
   const statusOptions = [
-    { value: 'all', label: 'All Status', color: 'gray' },
-    { value: ProjectStatus.Planning, label: 'Planning', color: 'blue' },
-    { value: ProjectStatus.Active, label: 'Active', color: 'green' },
-    { value: ProjectStatus.OnHold, label: 'On Hold', color: 'yellow' },
-    { value: ProjectStatus.Completed, label: 'Completed', color: 'purple' },
-    { value: ProjectStatus.Cancelled, label: 'Cancelled', color: 'red' },
+    { value: 'all', label: 'All Status', colorClass: 'bg-gray-100 text-gray-800' },
+    { value: ProjectStatus.Planning, label: 'Planning', colorClass: 'bg-blue-100 text-blue-800' },
+    { value: ProjectStatus.Active, label: 'Active', colorClass: 'bg-green-100 text-green-800' },
+    { value: ProjectStatus.OnHold, label: 'On Hold', colorClass: 'bg-yellow-100 text-yellow-800' },
+    { value: ProjectStatus.Completed, label: 'Completed', colorClass: 'bg-purple-100 text-purple-800' },
+    { value: ProjectStatus.Cancelled, label: 'Cancelled', colorClass: 'bg-red-100 text-red-800' },
   ]
 
-  // ✅ Updated priority options to use enums
   const priorityOptions = [
     { value: 'all', label: 'All Priorities' },
     { value: ProjectPriority.Low, label: 'Low Priority' },
@@ -59,17 +58,14 @@ export default function ProjectsPage() {
     { value: ProjectPriority.Critical, label: 'Critical Priority' },
   ]
 
-  // Load projects on component mount
   useEffect(() => {
     fetchProjects()
   }, [fetchProjects])
 
-  // Clear error when component unmounts
   useEffect(() => {
     return () => clearError()
   }, [clearError])
 
-  // Show error toast
   useEffect(() => {
     if (error) {
       toast.error(error)
@@ -77,21 +73,23 @@ export default function ProjectsPage() {
     }
   }, [error, clearError])
 
-  // ✅ Updated filter logic to handle enum values
-  const filteredProjects = projects.filter(project => {
-    const matchesSearch = 
-      project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      project.client.name.toLowerCase().includes(searchTerm.toLowerCase())
+  // ✅ Performance: Memoize filtered projects
+  const filteredProjects = useMemo(() => {
     
-    const matchesStatus = selectedStatus === 'all' || project.status === Number(selectedStatus)
-    const matchesPriority = selectedPriority === 'all' || project.priority === Number(selectedPriority)
-    const matchesOverdue = !showOverdueOnly || project.isOverdue
-    
-    return matchesSearch && matchesStatus && matchesPriority && matchesOverdue
-  })
+    return projects.filter(project => {
+      const matchesSearch = 
+        project.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.description.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        project.client.name.toLowerCase().includes(searchTerm.toLowerCase())
+      
+      const matchesStatus = selectedStatus === 'all' || project.status === Number(selectedStatus)
+      const matchesPriority = selectedPriority === 'all' || project.priority === Number(selectedPriority)
+      const matchesOverdue = !showOverdueOnly || project.isOverdue
+      
+      return matchesSearch && matchesStatus && matchesPriority && matchesOverdue
+    })
+  }, [projects, searchTerm, selectedStatus, selectedPriority, showOverdueOnly])
 
-  // Event handlers remain the same...
   const handleAddProject = () => {
     setEditingProject(null)
     setShowAddModal(true)
@@ -106,23 +104,39 @@ export default function ProjectsPage() {
     setViewingProject(project)
   }
 
+  // ✅ Fixed: Proper error handling and loading state for delete
   const handleDeleteProject = async () => {
     if (!deletingProject) return
 
-    const success = await deleteProject(deletingProject.id)
-    if (success) {
-      toast.success('Project deleted successfully')
-      setDeletingProject(null)
+    setDeleteLoading(true)
+    try {
+      const success = await deleteProject(deletingProject.id)
+      if (success) {
+        toast.success('Project deleted successfully')
+        setDeletingProject(null)
+      } else {
+        toast.error('Failed to delete project')
+      }
+    } catch (error) {
+      toast.error('Failed to delete project')
+    } finally {
+      setDeleteLoading(false)
     }
   }
 
   const handleUpdateProgress = async (progress: number) => {
     if (!progressProject) return
 
-    const success = await updateProjectProgress(progressProject.id, progress)
-    if (success) {
-      toast.success('Project progress updated successfully')
-      setProgressProject(null)
+    try {
+      const success = await updateProjectProgress(progressProject.id, progress)
+      if (success) {
+        toast.success('Project progress updated successfully')
+        setProgressProject(null)
+      } else {
+        toast.error('Failed to update progress')
+      }
+    } catch (error) {
+      toast.error('Failed to update progress')
     }
   }
 
@@ -142,19 +156,13 @@ export default function ProjectsPage() {
     }).format(amount)
   }
 
-  // ✅ Updated to use enum-based color mapping
-  const getStatusColor = (status: ProjectStatus) => {
-    switch (status) {
-      case ProjectStatus.Planning: return 'blue'
-      case ProjectStatus.Active: return 'green'
-      case ProjectStatus.OnHold: return 'yellow'
-      case ProjectStatus.Completed: return 'purple'
-      case ProjectStatus.Cancelled: return 'red'
-      default: return 'gray'
-    }
+  // ✅ Fixed: Use predefined classes for status colors
+  const getStatusColorClass = (status: ProjectStatus) => {
+    
+    const statusOption = statusOptions.find(option => option.value === status)
+    return statusOption?.colorClass || 'bg-gray-100 text-gray-800'
   }
 
-  // ✅ Updated to use enum-based priority colors
   const getPriorityColor = (priority: ProjectPriority) => {
     switch (priority) {
       case ProjectPriority.Low: return 'text-green-600 bg-green-100'
@@ -165,13 +173,22 @@ export default function ProjectsPage() {
     }
   }
 
+  const getPriorityIndicatorColor = (priority: ProjectPriority) => {
+    switch (priority) {
+      case ProjectPriority.Critical: return 'bg-red-500'
+      case ProjectPriority.High: return 'bg-orange-500'
+      case ProjectPriority.Medium: return 'bg-yellow-500'
+      case ProjectPriority.Low: return 'bg-green-500'
+      default: return 'bg-gray-500'
+    }
+  }
+
   const getProgressColor = (progress: number) => {
     if (progress < 30) return 'bg-red-500'
     if (progress < 70) return 'bg-yellow-500'
     return 'bg-green-500'
   }
 
-  // Check permissions
   const canManageProjects = user && [UserRole.Admin, UserRole.HR].includes(user.role)
   const canDeleteProjects = user && user.role === UserRole.Admin
 
@@ -189,7 +206,7 @@ export default function ProjectsPage() {
 
   return (
     <div className="p-6">
-      {/* Header - same as before */}
+      {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
@@ -203,6 +220,7 @@ export default function ProjectsPage() {
           whileTap={{ scale: 0.98 }}
           onClick={handleAddProject}
           className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg"
+          aria-label="Create new project"
         >
           <Plus className="w-5 h-5" />
           New Project
@@ -221,6 +239,7 @@ export default function ProjectsPage() {
               value={searchTerm}
               onChange={(e) => setSearchTerm(e.target.value)}
               className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              aria-label="Search projects"
             />
           </div>
           
@@ -231,6 +250,7 @@ export default function ProjectsPage() {
               value={selectedStatus}
               onChange={(e) => setSelectedStatus(e.target.value)}
               className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+              aria-label="Filter by status"
             >
               {statusOptions.map(option => (
                 <option key={option.value} value={option.value}>
@@ -245,6 +265,7 @@ export default function ProjectsPage() {
             value={selectedPriority}
             onChange={(e) => setSelectedPriority(e.target.value)}
             className="px-4 py-3 border border-gray-200 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 min-w-[140px]"
+            aria-label="Filter by priority"
           >
             {priorityOptions.map(option => (
               <option key={option.value} value={option.value}>
@@ -260,6 +281,7 @@ export default function ProjectsPage() {
               checked={showOverdueOnly}
               onChange={(e) => setShowOverdueOnly(e.target.checked)}
               className="w-4 h-4 text-red-600 border-gray-300 rounded focus:ring-red-500"
+              aria-label="Show only overdue projects"
             />
             <span className="text-sm font-medium text-gray-700 flex items-center gap-1">
               <AlertTriangle className="w-4 h-4 text-red-500" />
@@ -268,6 +290,17 @@ export default function ProjectsPage() {
           </label>
         </div>
       </div>
+
+      {/* Error State */}
+      {error && (
+        <div className="bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+          <div className="flex items-center gap-2">
+            <AlertTriangle className="w-5 h-5 text-red-500" />
+            <p className="text-red-700 font-medium">Error loading projects</p>
+          </div>
+          <p className="text-red-600 text-sm mt-1">{error}</p>
+        </div>
+      )}
 
       {/* Projects Grid */}
       {loading ? (
@@ -294,14 +327,10 @@ export default function ProjectsPage() {
                 animate={{ opacity: 1, y: 0 }}
                 exit={{ opacity: 0, y: -20 }}
                 transition={{ delay: index * 0.1 }}
-                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6 border border-gray-100"
+                className="bg-white rounded-xl shadow-sm hover:shadow-md transition-all duration-200 p-6 border border-gray-100 relative" // ✅ Added relative positioning
               >
-                {/* Priority Indicator */}
-                <div className={`absolute top-0 left-0 w-1 h-full ${
-                  project.priority === ProjectPriority.Critical ? 'bg-red-500' :
-                  project.priority === ProjectPriority.High ? 'bg-orange-500' :
-                  project.priority === ProjectPriority.Medium ? 'bg-yellow-500' : 'bg-green-500'
-                } rounded-l-xl`} />
+                {/* ✅ Fixed: Priority Indicator with proper positioning */}
+                <div className={`absolute top-0 left-0 w-1 h-full ${getPriorityIndicatorColor(project.priority)} rounded-l-xl`} />
                 
                 {/* Header */}
                 <div className="mb-4">
@@ -321,9 +350,9 @@ export default function ProjectsPage() {
                   </p>
                 </div>
 
-                {/* Status and Priority - ✅ Updated to use enum helper functions */}
+                {/* ✅ Fixed: Status and Priority with predefined classes */}
                 <div className="flex items-center gap-2 mb-4">
-                  <span className={`px-2 py-1 rounded-full text-xs font-medium bg-${getStatusColor(project.status)}-100 text-${getStatusColor(project.status)}-800`}>
+                  <span className={`px-2 py-1 rounded-full text-xs font-medium ${getStatusColorClass(project.status)}`}>
                     {getProjectStatusString(project.status)}
                   </span>
                   <span className={`px-2 py-1 rounded-full text-xs font-medium ${getPriorityColor(project.priority)}`}>
@@ -402,6 +431,7 @@ export default function ProjectsPage() {
                   <button
                     onClick={() => handleViewProject(project)}
                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors text-sm"
+                    aria-label={`View ${project.name}`}
                   >
                     <Eye className="w-4 h-4" />
                     View
@@ -410,6 +440,7 @@ export default function ProjectsPage() {
                   <button
                     onClick={() => handleEditProject(project)}
                     className="flex-1 flex items-center justify-center gap-1 px-3 py-2 bg-blue-100 text-blue-700 rounded-lg hover:bg-blue-200 transition-colors text-sm"
+                    aria-label={`Edit ${project.name}`}
                   >
                     <Edit className="w-4 h-4" />
                     Edit
@@ -418,6 +449,7 @@ export default function ProjectsPage() {
                   <button
                     onClick={() => setProgressProject(project)}
                     className="p-2 bg-green-100 text-green-700 rounded-lg hover:bg-green-200 transition-colors"
+                    aria-label={`Update progress for ${project.name}`}
                   >
                     <BarChart className="w-4 h-4" />
                   </button>
@@ -426,6 +458,7 @@ export default function ProjectsPage() {
                     <button
                       onClick={() => setDeletingProject(project)}
                       className="p-2 bg-red-100 text-red-700 rounded-lg hover:bg-red-200 transition-colors"
+                      aria-label={`Delete ${project.name}`}
                     >
                       <Trash2 className="w-4 h-4" />
                     </button>
@@ -459,7 +492,7 @@ export default function ProjectsPage() {
         </div>
       )}
 
-      {/* Modals - same as before */}
+      {/* Modals */}
       {showAddModal && (
         <AddEditProjectModal
           project={editingProject}
@@ -500,7 +533,7 @@ export default function ProjectsPage() {
           message={`Are you sure you want to delete "${deletingProject.name}"? This action cannot be undone.`}
           onCancel={() => setDeletingProject(null)}
           onConfirm={handleDeleteProject}
-          loading={loading}
+          loading={deleteLoading} // ✅ Fixed: Use separate delete loading state
         />
       )}
     </div>

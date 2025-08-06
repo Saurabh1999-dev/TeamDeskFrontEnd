@@ -59,7 +59,7 @@ export const getAllStaff = async (): Promise<Staff[]> => {
     try {
         // API returns direct array, not wrapped response
         const response = await api.get<Staff[]>('/staff')
-        debugger
+        
         console.log('📡 Direct array response:', response)
         return response
     } catch (error) {

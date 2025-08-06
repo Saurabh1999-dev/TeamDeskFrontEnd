@@ -24,7 +24,7 @@ export default function StaffPage() {
     toggleStaffStatus,
     clearError
   } = useStaffStore()
-debugger
+
   const [searchTerm, setSearchTerm] = useState('')
   const [selectedDepartment, setSelectedDepartment] = useState('all')
   const [selectedRole, setSelectedRole] = useState('all')
@@ -71,7 +71,7 @@ debugger
     
     return matchesSearch && matchesDepartment && matchesRole && matchesStatus
   })
-debugger
+
   const handleAddStaff = () => {
     setEditingStaff(null)
     setShowAddModal(true)

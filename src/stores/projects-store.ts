@@ -189,6 +189,7 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
       await deleteProject(id)
       
       // Remove project from the list
+      
       set(state => ({
         projects: state.projects.filter(p => p.id !== id),
         currentProject: state.currentProject?.id === id ? null : state.currentProject,

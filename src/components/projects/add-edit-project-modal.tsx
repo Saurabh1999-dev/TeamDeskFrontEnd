@@ -21,7 +21,7 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
   const [formData, setFormData] = useState({
     name: '',
     description: '',
-    clientId: '',
+    clientId: '15F3E2C7-366A-4308-806D-CEB829BDB69D',
     startDate: '',
     deadline: '',
     budget: 0,
@@ -104,10 +104,10 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
 
     setFormData(prev => ({
       ...prev,
-      [name]: name === 'budget' ? parseFloat(value) || 0 : 
-              name === 'status' ? parseInt(value) as ProjectStatus : // ✅ Parse as enum
-              name === 'priority' ? parseInt(value) as ProjectPriority : // ✅ Parse as enum
-              value,
+      [name]: name === 'budget' ? parseFloat(value) || 0 :
+        name === 'status' ? parseInt(value) as ProjectStatus : // ✅ Parse as enum
+          name === 'priority' ? parseInt(value) as ProjectPriority : // ✅ Parse as enum
+            value,
     }))
 
     if (errors[name]) {
@@ -146,9 +146,9 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
   const updateStaffAssignment = (index: number, field: string, value: string | number) => {
     setFormData(prev => ({
       ...prev,
-      staffAssignments: prev.staffAssignments.map((assignment, i) => 
-        i === index ? { 
-          ...assignment, 
+      staffAssignments: prev.staffAssignments.map((assignment, i) =>
+        i === index ? {
+          ...assignment,
           [field]: field === 'role' ? parseInt(value.toString()) as ProjectRole : value // ✅ Parse role as enum
         } : assignment
       )
@@ -208,12 +208,12 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
   }
 
   return (
-    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50 p-4">
+    <div className="fixed inset-0 backdrop-blur bg-white/30 flex items-center justify-center z-50 p-4">
       <motion.div
         initial={{ opacity: 0, scale: 0.95 }}
         animate={{ opacity: 1, scale: 1 }}
         exit={{ opacity: 0, scale: 0.95 }}
-        className="bg-white rounded-2xl shadow-2xl w-full max-w-4xl max-h-[90vh] overflow-y-auto"
+        className="bg-white rounded-2xl shadow-2xl w-full max-w-2xl max-h-[80vh] overflow-y-auto"
       >
         {/* Header */}
         <div className="flex items-center justify-between p-6 border-b">
@@ -229,9 +229,9 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
         </div>
 
         {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6 space-y-6">
+        <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {/* Basic Information */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 <FolderOpen className="inline w-4 h-4 mr-1" />
@@ -242,9 +242,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 name="name"
                 value={formData.name}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.name ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.name ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter project name"
               />
               {errors.name && <p className="text-red-500 text-sm mt-1">{errors.name}</p>}
@@ -259,9 +258,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 value={formData.description}
                 onChange={handleInputChange}
                 rows={3}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.description ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.description ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="Enter project description"
               />
               {errors.description && <p className="text-red-500 text-sm mt-1">{errors.description}</p>}
@@ -276,9 +274,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 name="clientId"
                 value={formData.clientId}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.clientId ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.clientId ? 'border-red-300' : 'border-gray-300'
+                  }`}
               >
                 <option value="">Select Client</option>
                 {mockClients.map(client => (
@@ -300,9 +297,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 onChange={handleInputChange}
                 min="0"
                 step="1000"
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.budget ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.budget ? 'border-red-300' : 'border-gray-300'
+                  }`}
                 placeholder="50000"
               />
               {errors.budget && <p className="text-red-500 text-sm mt-1">{errors.budget}</p>}
@@ -321,9 +317,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 name="startDate"
                 value={formData.startDate}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.startDate ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.startDate ? 'border-red-300' : 'border-gray-300'
+                  }`}
               />
               {errors.startDate && <p className="text-red-500 text-sm mt-1">{errors.startDate}</p>}
             </div>
@@ -337,9 +332,8 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 name="deadline"
                 value={formData.deadline}
                 onChange={handleInputChange}
-                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${
-                  errors.deadline ? 'border-red-300' : 'border-gray-300'
-                }`}
+                className={`w-full px-4 py-3 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 ${errors.deadline ? 'border-red-300' : 'border-gray-300'
+                  }`}
               />
               {errors.deadline && <p className="text-red-500 text-sm mt-1">{errors.deadline}</p>}
             </div>
@@ -355,7 +349,7 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 name="status"
                 value={formData.status}
                 onChange={handleInputChange}
-                className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className="w-full px-3 py-2 border rounded-md text-sm focus:outline-none focus:ring-2 focus:ring-blue-500"
               >
                 {statusOptions.map(option => (
                   <option key={option.value} value={option.value}>
@@ -408,7 +402,7 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                 Add
               </button>
             </div>
-            
+
             <div className="flex flex-wrap gap-2">
               {formData.tags.map((tag, index) => (
                 <span
@@ -421,7 +415,7 @@ export function AddEditProjectModal({ project, onClose, onSave }: AddEditProject
                     onClick={() => removeTag(tag)}
                     className="hover:bg-blue-200 rounded-full p-1"
                   >
-                    <X className="w-3 h-3" />
+                    <X className="w-5 h-5 text-gray-500" />
                   </button>
                 </span>
               ))}
