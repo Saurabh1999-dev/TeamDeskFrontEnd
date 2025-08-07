@@ -1,14 +1,13 @@
-// src/services/notificationApi.ts
-import { api } from '@/lib/api'
+import { api } from "@/lib/api"
 
-export interface Notification {
+export interface NotificationResponse {
   id: string
   userId: string
   title: string
   message: string
-  type: 'task_assigned' | 'task_updated' | 'task_completed' | 'project_update' | 'general'
+  type: string
   relatedEntityId?: string
-  relatedEntityType?: 'task' | 'project' | 'client'
+  relatedEntityType?: string
   isRead: boolean
   createdAt: string
 }
@@ -22,29 +21,10 @@ export interface CreateNotificationRequest {
   relatedEntityType?: string
 }
 
-// ✅ Send task assignment notification
-export const sendTaskAssignmentNotification = async (
-  taskId: string,
-  assignedToId: string,
-  customMessage?: string
-): Promise<{ success: boolean; message: string }> => {
-  try {
-    const response = await api.post<{ success: boolean; message: string }>('/notifications/task-assignment', {
-      taskId,
-      assignedToId,
-      customMessage
-    })
-    
-    return response
-  } catch (error) {
-    throw error
-  }
-}
-
 // ✅ Get user notifications
-export const getUserNotifications = async (userId: string): Promise<Notification[]> => {
+export const getUserNotifications = async (userId: string): Promise<NotificationResponse[]> => {
   try {
-    const response = await api.get<Notification[]>(`/notifications/user/${userId}`)
+    const response = await api.get<NotificationResponse[]>(`/notifications/user/${userId}`)
     return response
   } catch (error) {
     console.error('Error fetching user notifications:', error)
@@ -53,31 +33,53 @@ export const getUserNotifications = async (userId: string): Promise<Notification
 }
 
 // ✅ Mark notification as read
-export const markNotificationAsRead = async (notificationId: string): Promise<{ success: boolean }> => {
+export const markNotificationAsRead = async (notificationId: string): Promise<boolean> => {
   try {
-    const response = await api.put<{ success: boolean }>(`/notifications/${notificationId}/read`)
-    return response
+    const response = await api.put<{ success: boolean }>(`/notifications/${notificationId}/mark-read`)
+    return response.success
   } catch (error) {
     console.error('Error marking notification as read:', error)
     throw error
   }
 }
 
-// ✅ Mark all notifications as read for user
-export const markAllNotificationsAsRead = async (userId: string): Promise<{ success: boolean }> => {
+// ✅ Mark all notifications as read for a user
+export const markAllNotificationsAsRead = async (userId: string): Promise<boolean> => {
   try {
-    const response = await api.put<{ success: boolean }>(`/notifications/user/${userId}/read-all`)
-    return response
+    const response = await api.put<{ success: boolean; count: number }>(`/notifications/user/${userId}/mark-all-read`)
+    return response.success
   } catch (error) {
     console.error('Error marking all notifications as read:', error)
     throw error
   }
 }
 
-// ✅ Create custom notification
-export const createNotification = async (data: CreateNotificationRequest): Promise<Notification> => {
+// ✅ Delete notification
+export const deleteNotification = async (notificationId: string): Promise<boolean> => {
   try {
-    const response = await api.post<Notification>('/notifications', data)
+    const response = await api.delete<{ success: boolean }>(`/notifications/${notificationId}`)
+    return response.success
+  } catch (error) {
+    console.error('Error deleting notification:', error)
+    throw error
+  }
+}
+
+// ✅ Get unread notification count
+export const getUnreadNotificationCount = async (userId: string): Promise<number> => {
+  try {
+    const response = await api.get<{ count: number }>(`/notifications/user/${userId}/unread-count`)
+    return response.count
+  } catch (error) {
+    console.error('Error fetching unread notification count:', error)
+    throw error
+  }
+}
+
+// ✅ Create notification
+export const createNotification = async (request: CreateNotificationRequest): Promise<NotificationResponse> => {
+  try {
+    const response = await api.post<NotificationResponse>('/notifications', request)
     return response
   } catch (error) {
     console.error('Error creating notification:', error)

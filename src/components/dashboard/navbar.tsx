@@ -1,7 +1,7 @@
-// src/components/dashboard/navbar.tsx
+// src/components/dashboard/navbar.tsx - Enhanced with SignalR and Sound
 'use client'
 
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { usePathname } from 'next/navigation'
 import { motion, AnimatePresence } from 'framer-motion'
 import { 
@@ -14,9 +14,18 @@ import {
   LogOut,
   Moon,
   Sun,
-  ChevronDown
+  ChevronDown,
+  Wifi,
+  WifiOff,
+  Volume2,
+  VolumeX
 } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
+import { useNotificationsStore } from '@/stores/notifications-store'
+import { useSignalR } from '@/hooks/useSignalR'
+import { useNotificationSounds } from '@/hooks/useNotificationSounds'
+import { formatDistanceToNow } from 'date-fns'
+import toast from 'react-hot-toast'
 
 interface NavbarProps {
   onMobileMenuToggle?: () => void
@@ -25,9 +34,98 @@ interface NavbarProps {
 export function Navbar({ onMobileMenuToggle }: NavbarProps) {
   const pathname = usePathname()
   const { user, logout } = useAuthStore()
+  const { 
+    notifications, 
+    unreadCount, 
+    loading, 
+    fetchNotifications, 
+    addNotification, 
+    markAsRead, 
+    markAllAsRead 
+  } = useNotificationsStore()
+  
+  // ✅ SignalR and Sound hooks
+  const { connection, isConnected, connectionError } = useSignalR()
+  const { 
+    playTaskAssigned, 
+    playGeneralNotification, 
+    playSuccess, 
+    playWarning, 
+    playError 
+  } = useNotificationSounds()
+
   const [searchQuery, setSearchQuery] = useState('')
   const [showProfileMenu, setShowProfileMenu] = useState(false)
   const [showNotifications, setShowNotifications] = useState(false)
+  const [soundEnabled, setSoundEnabled] = useState(true)
+
+  // ✅ Load notifications on mount
+  useEffect(() => {
+    fetchNotifications()
+  }, [fetchNotifications])
+
+  // ✅ Set up SignalR event listeners
+  useEffect(() => {
+    if (!connection || !isConnected) return
+
+    // Listen for new notifications
+    const handleNewNotification = (notification: any, notificationType?: string) => {
+      console.log('New notification received:', notification)
+      
+      // Add to store
+      addNotification(notification)
+      
+      // Play sound based on notification type
+      if (soundEnabled) {
+        switch (notificationType) {
+          case 'task_assigned':
+            playTaskAssigned()
+            break
+          case 'success':
+            playSuccess()
+            break
+          case 'warning':
+            playWarning()
+            break
+          case 'error':
+            playError()
+            break
+          default:
+            playGeneralNotification()
+        }
+      }
+
+      // Show toast notification
+      toast.success(`${notification.title}: ${notification.message}`, {
+        duration: 5000,
+        position: 'top-right',
+      })
+    }
+
+    // Listen for notification marked as read
+    const handleNotificationRead = (notificationId: string) => {
+      console.log('Notification marked as read:', notificationId)
+      // This is handled by the markAsRead function
+    }
+
+    // Listen for all notifications marked as read
+    const handleAllNotificationsRead = () => {
+      console.log('All notifications marked as read')
+      // This is handled by the markAllAsRead function
+    }
+
+    // Set up event listeners
+    connection.on('ReceiveNotification', handleNewNotification)
+    connection.on('NotificationMarkedAsRead', handleNotificationRead)
+    connection.on('AllNotificationsMarkedAsRead', handleAllNotificationsRead)
+
+    return () => {
+      // Clean up event listeners
+      connection.off('ReceiveNotification')
+      connection.off('NotificationMarkedAsRead')
+      connection.off('AllNotificationsMarkedAsRead')
+    }
+  }, [connection, isConnected, addNotification, soundEnabled, playTaskAssigned, playGeneralNotification, playSuccess, playWarning, playError])
 
   const getPageTitle = () => {
     const routeTitles: { [key: string]: string } = {
@@ -35,35 +133,60 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
       '/projects': 'Projects',
       '/staff': 'Staff Management',
       '/clients': 'Client Management',
+      '/tasks': 'Task Management', // ✅ Added tasks page
     }
     return routeTitles[pathname] || 'TeamDesk'
   }
 
-  const notifications = [
-    {
-      id: 1,
-      title: 'New Project Assigned',
-      message: 'You have been assigned to Project Alpha',
-      time: '5 mins ago',
-      unread: true,
-    },
-    {
-      id: 2,
-      title: 'Staff Member Added',
-      message: 'John Doe has been added to your team',
-      time: '1 hour ago',
-      unread: true,
-    },
-    {
-      id: 3,
-      title: 'Project Deadline',
-      message: 'Project Beta deadline is approaching',
-      time: '2 hours ago',
-      unread: false,
-    },
-  ]
+  const handleNotificationClick = async (notification: any) => {
+    if (!notification.isRead) {
+      await markAsRead(notification.id)
+    }
+    
+    // Navigate to related entity if available
+    if (notification.relatedEntityType && notification.relatedEntityId) {
+      // Add navigation logic here
+      switch (notification.relatedEntityType) {
+        case 'task':
+          // Navigate to task details
+          break
+        case 'project':
+          // Navigate to project details
+          break
+        case 'client':
+          // Navigate to client details
+          break
+      }
+    }
+  }
 
-  const unreadCount = notifications.filter(n => n.unread).length
+  const handleMarkAllAsRead = async () => {
+    await markAllAsRead()
+    toast.success('All notifications marked as read')
+  }
+
+  const getNotificationIcon = (type: string) => {
+    switch (type) {
+      case 'task_assigned':
+        return '📋'
+      case 'project_update':
+        return '📊'
+      case 'client_update':
+        return '👥'
+      case 'success':
+        return '✅'
+      case 'warning':
+        return '⚠️'
+      case 'error':
+        return '❌'
+      default:
+        return '🔔'
+    }
+  }
+
+  const formatNotificationTime = (createdAt: string) => {
+    return formatDistanceToNow(new Date(createdAt), { addSuffix: true })
+  }
 
   return (
     <header className="bg-white border-b border-gray-200 px-4 sm:px-6 lg:px-8">
@@ -101,57 +224,122 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
             <Search className="w-5 h-5" />
           </button>
 
+          {/* ✅ Connection Status Indicator */}
+          <div className="flex items-center gap-2">
+            {isConnected ? (
+              <Wifi className="w-4 h-4 text-green-500" />
+            ) : (
+              <WifiOff className="w-4 h-4 text-red-500" />
+            )}
+          </div>
+
+          {/* ✅ Sound Toggle */}
+          <button
+            onClick={() => setSoundEnabled(!soundEnabled)}
+            className="p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
+            title={soundEnabled ? "Disable notification sounds" : "Enable notification sounds"}
+          >
+            {soundEnabled ? (
+              <Volume2 className="w-4 h-4" />
+            ) : (
+              <VolumeX className="w-4 h-4" />
+            )}
+          </button>
+
+          {/* ✅ Enhanced Notifications Bell */}
           <div className="relative">
             <button
               onClick={() => setShowNotifications(!showNotifications)}
               className="relative p-2 rounded-lg text-gray-500 hover:bg-gray-100 transition-colors"
             >
-              <Bell className="w-5 h-5" />
+              <Bell className={`w-5 h-5 ${unreadCount > 0 ? 'text-blue-600' : ''}`} />
               {unreadCount > 0 && (
-                <span className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
-                  {unreadCount}
-                </span>
+                <motion.span
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  className="absolute -top-1 -right-1 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
+                >
+                  {unreadCount > 99 ? '99+' : unreadCount}
+                </motion.span>
               )}
             </button>
 
+            {/* ✅ Enhanced Notifications Dropdown */}
             <AnimatePresence>
               {showNotifications && (
                 <motion.div
                   initial={{ opacity: 0, scale: 0.95, y: -10 }}
                   animate={{ opacity: 1, scale: 1, y: 0 }}
                   exit={{ opacity: 0, scale: 0.95, y: -10 }}
-                  className="absolute right-0 mt-2 w-80 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
+                  className="absolute right-0 mt-2 w-96 bg-white rounded-lg shadow-lg border border-gray-200 z-50"
                 >
-                  <div className="p-4 border-b border-gray-200">
-                    <h3 className="text-lg font-semibold text-gray-900">Notifications</h3>
-                  </div>
-                  <div className="max-h-96 overflow-y-auto">
-                    {notifications.map((notification) => (
-                      <div
-                        key={notification.id}
-                        className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                          notification.unread ? 'bg-blue-50' : ''
-                        }`}
+                  <div className="p-4 border-b border-gray-200 flex items-center justify-between">
+                    <h3 className="text-lg font-semibold text-gray-900">
+                      Notifications
+                      {!isConnected && (
+                        <span className="ml-2 text-xs text-red-500">(Offline)</span>
+                      )}
+                    </h3>
+                    {unreadCount > 0 && (
+                      <button
+                        onClick={handleMarkAllAsRead}
+                        className="text-sm text-blue-600 hover:text-blue-700 font-medium"
                       >
-                        <div className="flex items-start gap-3">
-                          <div className={`w-2 h-2 rounded-full mt-2 ${
-                            notification.unread ? 'bg-blue-500' : 'bg-gray-300'
-                          }`} />
-                          <div className="flex-1">
-                            <h4 className="text-sm font-medium text-gray-900">
-                              {notification.title}
-                            </h4>
-                            <p className="text-sm text-gray-600 mt-1">
-                              {notification.message}
-                            </p>
-                            <p className="text-xs text-gray-500 mt-2">
-                              {notification.time}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
+                        Mark all read
+                      </button>
+                    )}
                   </div>
+
+                  <div className="max-h-96 overflow-y-auto">
+                    {loading ? (
+                      <div className="p-8 text-center">
+                        <div className="animate-spin rounded-full h-6 w-6 border-b-2 border-blue-600 mx-auto"></div>
+                        <p className="text-sm text-gray-500 mt-2">Loading notifications...</p>
+                      </div>
+                    ) : notifications.length > 0 ? (
+                      notifications.map((notification) => (
+                        <motion.div
+                          key={notification.id}
+                          initial={{ opacity: 0, y: 10 }}
+                          animate={{ opacity: 1, y: 0 }}
+                          className={`p-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer ${
+                            !notification.isRead ? 'bg-blue-50' : ''
+                          }`}
+                          onClick={() => handleNotificationClick(notification)}
+                        >
+                          <div className="flex items-start gap-3">
+                            <div className="flex-shrink-0">
+                              <span className="text-lg">
+                                {getNotificationIcon(notification.type)}
+                              </span>
+                            </div>
+                            <div className="flex-1 min-w-0">
+                              <div className="flex items-start justify-between">
+                                <h4 className="text-sm font-medium text-gray-900 truncate">
+                                  {notification.title}
+                                </h4>
+                                {!notification.isRead && (
+                                  <div className="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0 mt-2" />
+                                )}
+                              </div>
+                              <p className="text-sm text-gray-600 mt-1 line-clamp-2">
+                                {notification.message}
+                              </p>
+                              <p className="text-xs text-gray-500 mt-2">
+                                {formatNotificationTime(notification.createdAt)}
+                              </p>
+                            </div>
+                          </div>
+                        </motion.div>
+                      ))
+                    ) : (
+                      <div className="p-8 text-center">
+                        <Bell className="w-12 h-12 text-gray-300 mx-auto mb-3" />
+                        <p className="text-gray-500">No notifications yet</p>
+                      </div>
+                    )}
+                  </div>
+
                   <div className="p-3 border-t border-gray-200">
                     <button className="w-full text-center text-sm text-blue-600 hover:text-blue-700 font-medium">
                       View All Notifications
@@ -166,6 +354,7 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
             <Settings className="w-5 h-5" />
           </button>
 
+          {/* Profile Menu - Keep existing implementation */}
           <div className="relative">
             <button
               onClick={() => setShowProfileMenu(!showProfileMenu)}
