@@ -10,6 +10,7 @@ import { useStaffStore } from '@/stores/staff-store'
 import { useProjectsStore } from '@/stores/projects-store'
 import { Route } from 'next'
 import { ProjectStatus } from '@/types/projects'
+import { useClientsStore } from '@/stores/clients-store'
 
 interface DashboardStats {
   totalStaff: number
@@ -45,11 +46,11 @@ export default function DashboardPage() {
     fetchProjects 
   } = useProjectsStore()
   
-//   const { 
-//     clients, 
-//     loading: clientsLoading, 
-//     fetchClients 
-//   } = useClientsStore()
+  const { 
+    clients, 
+    loading: clientsLoading, 
+    fetchClients 
+  } = useClientsStore()
 
   // ✅ Dynamic state - no more hardcoded values
   const [stats, setStats] = useState<DashboardStats>({
@@ -72,7 +73,7 @@ export default function DashboardPage() {
         await Promise.all([
           fetchStaff(),
           fetchProjects(),
-        //   fetchClients()
+          fetchClients()
         ])
       } catch (error) {
         console.error('Error fetching dashboard data:', error)
@@ -84,7 +85,6 @@ export default function DashboardPage() {
     fetchAllData()
   }, [fetchStaff, fetchProjects])
 
-  // ✅ Calculate dynamic stats whenever data changes
   useEffect(() => {
     if (staff && projects) {
       const newStats: DashboardStats = {
@@ -100,12 +100,10 @@ export default function DashboardPage() {
     }
   }, [staff, projects])
 
-  // ✅ Generate dynamic recent activities from real data
   useEffect(() => {
     if (staff && projects) {
       const activities: RecentActivity[] = []
 
-      // Add recent staff activities
       const recentStaff = [...staff]
         .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
         .slice(0, 2)
@@ -120,7 +118,6 @@ export default function DashboardPage() {
         })
       })
 
-      // Add recent project activities
       const recentProjects = [...projects]
         .sort((a, b) => new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime())
         .slice(0, 3)
@@ -150,7 +147,6 @@ export default function DashboardPage() {
         })
       })
 
-      // Sort all activities by timestamp (most recent first) and take top 5
       const sortedActivities = activities
         .sort((a, b) => b.timestamp.getTime() - a.timestamp.getTime())
         .slice(0, 5)
@@ -159,7 +155,6 @@ export default function DashboardPage() {
     }
   }, [staff, projects])
 
-  // ✅ Dynamic time formatting
   const formatTimeAgo = (dateString: string): string => {
     const now = new Date()
     const date = new Date(dateString)
@@ -172,9 +167,7 @@ export default function DashboardPage() {
     return date.toLocaleDateString()
   }
 
-  // ✅ Calculate dynamic growth percentages
   const calculateGrowth = (current: number, type: string): string => {
-    // This could be enhanced with historical data from your API
     const baseGrowth = {
       staff: Math.max(0, Math.floor(current * 0.1)),
       projects: Math.max(0, Math.floor(current * 0.15)),
@@ -185,7 +178,6 @@ export default function DashboardPage() {
     return growth > 0 ? `+${growth} this month` : 'No change'
   }
 
-  // ✅ Dynamic stat cards with real data
   const statCards = [
     {
       title: 'Total Staff',

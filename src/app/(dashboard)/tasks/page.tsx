@@ -105,7 +105,7 @@ export default function TasksPage() {
     
     return matchesSearch && matchesProject && matchesStatus && matchesPriority && matchesAssignee && matchesOverdue
   })
-
+debugger
   const handleAddTask = () => {
     setEditingTask(null)
     setShowAddModal(true)
@@ -156,8 +156,8 @@ export default function TasksPage() {
   }
 
   // Check permissions
-  const canManageTasks = user && [UserRole.Admin, UserRole.HR].includes(user.role)
-  const canDeleteTasks = user && user.role === UserRole.Admin
+  const canManageTasks = user && [UserRole.Admin, UserRole.HR, UserRole.Staff].includes(user.role)
+  const canDeleteTasks = user && user.role === UserRole.Admin && UserRole.Staff
 
   if (!canManageTasks) {
     return (

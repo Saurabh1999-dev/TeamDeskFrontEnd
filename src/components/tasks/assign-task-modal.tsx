@@ -78,10 +78,7 @@ export function AssignTaskModal({ task, onClose, onAssign }: AssignTaskModalProp
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
-
-        {/* Content - Scrollable */}
         <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-4 sm:space-y-6">
-          {/* Task Overview */}
           <div className="bg-gray-50 rounded-lg p-3 sm:p-4">
             <h3 className="font-medium text-gray-900 mb-2 text-sm sm:text-base">Task Details</h3>
             <div className="space-y-2 text-xs sm:text-sm">
