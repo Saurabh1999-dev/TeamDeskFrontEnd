@@ -249,7 +249,7 @@ export default function DashboardPage() {
   // ✅ Loading state
   if (isLoading || staffLoading || projectsLoading) {
     return (
-      <div className="p-6">
+      <div className="">
         <div className="mb-8">
           <div className="h-8 bg-gray-200 rounded w-64 mb-2 animate-pulse"></div>
           <div className="h-4 bg-gray-200 rounded w-48 animate-pulse"></div>
@@ -272,7 +272,7 @@ export default function DashboardPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       {/* Header */}
       <div className="mb-8">
         <h1 className="text-3xl font-bold text-gray-900">

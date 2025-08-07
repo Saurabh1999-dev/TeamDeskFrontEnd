@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, Users, FolderOpen, Building, Settings, LogOut } from 'lucide-react'
+import { Home, Users, FolderOpen, Building, Settings, LogOut, CheckSquare } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { UserRole, getUserRoleString } from '@/types/auth'
 import { Route } from 'next'
@@ -19,6 +19,12 @@ const navigationItems = [
     label: 'Projects', 
     path: '/projects', 
     icon: FolderOpen, 
+    roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
+  },
+  { 
+    label: 'Tasks', 
+    path: '/tasks', 
+    icon: CheckSquare, 
     roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
   },
   { 
@@ -44,7 +50,7 @@ export function Sidebar() {
   )
 
   return (
-    <aside className="w-64 h-screen bg-white shadow-xl border-r border-gray-100 flex flex-col">
+    <aside className="fixed top-0 left-0 w-64 h-screen bg-white shadow-xl border-r border-gray-100 flex flex-col z-50">
       <div className="p-6 border-b border-gray-100">
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 bg-blue-600 rounded-lg flex items-center justify-center">

@@ -16,21 +16,18 @@ export default function DashboardLayout({
   return (
     <ProtectedRoute>
       <div className="min-h-screen bg-gray-50 flex">
-        {/* Desktop Sidebar */}
         <div className="hidden lg:block">
           <Sidebar />
         </div>
 
-        {/* Mobile Sidebar */}
         <MobileSidebar 
           isOpen={isMobileMenuOpen} 
           onClose={() => setIsMobileMenuOpen(false)} 
         />
 
-        {/* Main Content */}
         <div className="flex-1 flex flex-col min-w-0">
           <Navbar onMobileMenuToggle={() => setIsMobileMenuOpen(true)} />
-          <main className="flex-1 overflow-auto bg-gray-50">
+          <main className="flex-1 pt-6 pl-70 pr-6 overflow-auto bg-gray-50">
             {children}
           </main>
         </div>

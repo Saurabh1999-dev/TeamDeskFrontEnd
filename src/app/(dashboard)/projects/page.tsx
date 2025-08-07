@@ -188,7 +188,7 @@ export default function ProjectsPage() {
 
   if (!canManageProjects) {
     return (
-      <div className="p-6">
+      <div className="">
         <div className="text-center py-12">
           <FolderOpen className="w-16 h-16 text-gray-300 mx-auto mb-4" />
           <h3 className="text-lg font-medium text-gray-900 mb-2">Access Denied</h3>
@@ -199,7 +199,7 @@ export default function ProjectsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div className="">
       <div className="flex justify-between items-center mb-6">
         <div>
           <h1 className="text-3xl font-bold text-gray-900">Project Management</h1>
@@ -209,8 +209,6 @@ export default function ProjectsPage() {
         </div>
         
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           onClick={handleAddProject}
           className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg"
           aria-label="Create new project"

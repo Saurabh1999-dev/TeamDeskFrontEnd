@@ -89,7 +89,7 @@ export default function ClientsPage() {
 
   if (error) {
     return (
-      <div className="p-6">
+      <div className="">
         <div className="bg-red-50 border border-red-200 rounded-lg p-4">
           <h3 className="text-red-800 font-medium">Error loading clients</h3>
           <p className="text-red-600 text-sm mt-1">{error}</p>
@@ -105,7 +105,7 @@ export default function ClientsPage() {
   }
 
   return (
-    <div className="p-6">
+    <div>
       {/* Header */}
       <div className="flex justify-between items-center mb-6">
         <div>
@@ -116,8 +116,6 @@ export default function ClientsPage() {
         </div>
         
         <motion.button
-          whileHover={{ scale: 1.02 }}
-          whileTap={{ scale: 0.98 }}
           onClick={handleAddClient}
           disabled={loading}
           className="bg-blue-600 text-white px-6 py-3 rounded-xl font-medium hover:bg-blue-700 transition-colors flex items-center gap-2 shadow-lg disabled:opacity-50"

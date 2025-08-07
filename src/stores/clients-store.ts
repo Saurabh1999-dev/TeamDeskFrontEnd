@@ -94,7 +94,6 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const updatedClient = await updateClient(id, data)
-      debugger
       const processedClient = {
         ...updatedClient,
       }
