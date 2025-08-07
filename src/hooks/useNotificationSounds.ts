@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react'
 
+
 interface NotificationSounds {
   playTaskAssigned: () => void
   playGeneralNotification: () => void
@@ -13,11 +14,11 @@ export function useNotificationSounds(): NotificationSounds {
 
   useEffect(() => {
     soundsRef.current = {
-      taskAssigned: new Audio('/sounds/task-assigned.mp3'),
-      general: new Audio('/sounds/notification.mp3'),
-      success: new Audio('/sounds/success.mp3'),
-      warning: new Audio('/sounds/warning.mp3'),
-      error: new Audio('/sounds/error.mp3'),
+      taskAssigned: new Audio('/task-assigned.mp3'),
+      general: new Audio('/notification.mp3'),
+      success: new Audio('/success.mp3'),
+      warning: new Audio('/warning.mp3'),
+      error: new Audio('/error.mp3'),
     }
 
     Object.values(soundsRef.current).forEach(audio => {

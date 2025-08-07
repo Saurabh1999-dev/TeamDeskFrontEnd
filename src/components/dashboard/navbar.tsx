@@ -166,6 +166,7 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
   }
 
   const getNotificationIcon = (type: string) => {
+    debugger
     switch (type) {
       case 'task_assigned':
         return '📋'

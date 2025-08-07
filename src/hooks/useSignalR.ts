@@ -15,7 +15,6 @@ export function useSignalR(): UseSignalRReturn {
   const [connection, setConnection] = useState<HubConnection | null>(null)
   const [isConnected, setIsConnected] = useState(false)
   const [connectionError, setConnectionError] = useState<string | null>(null)
-  const reconnectTimeoutRef = useRef<NodeJS.Timeout>()
 
   useEffect(() => {
     if (!user || !token) return
@@ -74,26 +73,16 @@ export function useSignalR(): UseSignalRReturn {
         setConnection(newConnection)
         setIsConnected(true)
         setConnectionError(null)
-        toast.success('Connected to live notifications')
 
       } catch (error) {
         console.error('SignalR Connection Error:', error)
         setConnectionError('Failed to connect')
-        
-        // Retry connection after 5 seconds
-        reconnectTimeoutRef.current = setTimeout(() => {
-          startConnection()
-        }, 5000)
       }
     }
 
     startConnection()
 
-    return () => {
-      if (reconnectTimeoutRef.current) {
-        clearTimeout(reconnectTimeoutRef.current)
-      }
-      
+    return () => {      
       if (connection) {
         connection.stop()
           .then(() => console.log('SignalR connection stopped'))
