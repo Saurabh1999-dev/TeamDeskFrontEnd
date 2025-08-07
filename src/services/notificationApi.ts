@@ -35,10 +35,8 @@ export const sendTaskAssignmentNotification = async (
       customMessage
     })
     
-    console.log('📧 Task assignment notification sent:', response)
     return response
   } catch (error) {
-    console.error('Error sending task assignment notification:', error)
     throw error
   }
 }

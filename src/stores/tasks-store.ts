@@ -60,18 +60,13 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   fetchTasks: async () => {
     set({ loading: true, error: null })
     try {
-      const tasksArray = await getAllTasks()
-      
-      console.log('📊 Tasks array received:', tasksArray)
-      console.log('📊 Tasks count:', tasksArray.length)
-      
+      const tasksArray = await getAllTasks()      
       set({ 
         tasks: tasksArray, 
         loading: false,
         error: null 
       })
     } catch (error: any) {
-      console.error('❌ Error fetching tasks:', error)
       set({ 
         error: error.message || 'Failed to fetch tasks', 
         loading: false,
@@ -83,8 +78,6 @@ export const useTasksStore = create<TasksState>((set, get) => ({
   uploadAttachment: async (taskId: string, file: File) => {
     try {
       const attachment = await uploadTaskAttachment(taskId, file)
-      
-      // Update task in all relevant arrays
       set(state => ({
         tasks: state.tasks.map(t => 
           t.id === taskId ? { ...t, attachments: [...t.attachments, attachment] } : t

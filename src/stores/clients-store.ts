@@ -36,8 +36,6 @@ export const useClientsStore = create<ClientsState>((set, get) => ({
     set({ loading: true, error: null })
     try {
       const clientsArray = await getAllClients()
-      console.log('📊 Clients array received:', clientsArray)
-      console.log('📊 Clients count:', clientsArray.length)
       const processedClients = clientsArray.map((client: any) => ({
         ...client,
       }))

@@ -46,12 +46,7 @@ export const useProjectsStore = create<ProjectsState>((set, get) => ({
   fetchProjects: async () => {
     set({ loading: true, error: null })
     try {
-      const projectsArray = await getAllProjects()
-      
-      console.log('📊 Projects array received:', projectsArray)
-      console.log('📊 Projects count:', projectsArray.length)
-      
-      // Process projects and add calculated fields with proper enum handling
+      const projectsArray = await getAllProjects()      
       const processedProjects = projectsArray.map(project => ({
         ...project,
         status: project.status as ProjectStatus,

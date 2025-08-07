@@ -84,7 +84,6 @@ export interface AssignTaskRequest {
 export const getAllTasks = async (): Promise<Task[]> => {
   try {
     const response = await api.get<Task[]>('/tasks')
-    console.log('📡 Tasks response:', response)
     
     return response.map(task => ({
       ...task,
@@ -96,7 +95,6 @@ export const getAllTasks = async (): Promise<Task[]> => {
       isOverdue: task.isOverdue || (task.dueDate ? new Date(task.dueDate) < new Date() : false),
     }))
   } catch (error) {
-    console.error('Error fetching tasks:', error)
     throw error
   }
 }
@@ -106,12 +104,12 @@ export const uploadTaskAttachment = async (taskId: string, file: File): Promise<
     const formData = new FormData()
     formData.append('file', file)
 
-    const response = await fetch(`${process.env.NEXT_PUBLIC_API_URL}/tasks/${taskId}/attachments`, {
+    const response = await fetch(`https://localhost:7201/api/Tasks/${taskId}/attachments`, {
       method: 'POST',
       headers: {
         'Authorization': `Bearer ${localStorage.getItem('token')}`,
       },
-      body: formData, // Don't set Content-Type, browser will set it with boundary
+      body: formData,
     })
 
     if (!response.ok) {
@@ -211,7 +209,6 @@ export const getTaskById = async (id: string): Promise<Task> => {
 export const createTask = async (taskData: CreateTaskRequest): Promise<Task> => {
   try {
     const response = await api.post<Task>('/tasks', taskData)
-    console.log('📡 Created task:', response)
     
     return {
       ...response,
@@ -223,7 +220,6 @@ export const createTask = async (taskData: CreateTaskRequest): Promise<Task> => 
       isOverdue: response.isOverdue || (response.dueDate ? new Date(response.dueDate) < new Date() : false),
     }
   } catch (error) {
-    console.error('Error creating task:', error)
     throw error
   }
 }
@@ -232,7 +228,6 @@ export const createTask = async (taskData: CreateTaskRequest): Promise<Task> => 
 export const updateTask = async (id: string, taskData: UpdateTaskRequest): Promise<Task> => {
   try {
     const response = await api.put<Task>(`/tasks/${id}`, taskData)
-    console.log('📡 Updated task:', response)
     
     return {
       ...response,
@@ -244,7 +239,6 @@ export const updateTask = async (id: string, taskData: UpdateTaskRequest): Promi
       isOverdue: response.isOverdue || (response.dueDate ? new Date(response.dueDate) < new Date() : false),
     }
   } catch (error) {
-    console.error('Error updating task:', error)
     throw error
   }
 }
@@ -253,7 +247,6 @@ export const updateTask = async (id: string, taskData: UpdateTaskRequest): Promi
 export const assignTask = async (assignmentData: AssignTaskRequest): Promise<Task> => {
   try {
     const response = await api.post<Task>('/tasks/assign', assignmentData)
-    console.log('📡 Assigned task:', response)
     
     return {
       ...response,
@@ -274,7 +267,6 @@ export const assignTask = async (assignmentData: AssignTaskRequest): Promise<Tas
 export const updateTaskStatus = async (id: string, status: TaskStatus): Promise<Task> => {
   try {
     const response = await api.put<Task>(`/tasks/${id}/status`, { status })
-    console.log('📡 Updated task status:', response)
     
     return {
       ...response,
@@ -295,7 +287,6 @@ export const updateTaskStatus = async (id: string, status: TaskStatus): Promise<
 export const addTaskComment = async (taskId: string, comment: string): Promise<TaskComment> => {
   try {
     const response = await api.post<TaskComment>(`/tasks/${taskId}/comments`, { comment })
-    console.log('📡 Added task comment:', response)
     
     return response
   } catch (error) {
@@ -308,7 +299,6 @@ export const addTaskComment = async (taskId: string, comment: string): Promise<T
 export const deleteTask = async (id: string): Promise<{ success: boolean; message: string }> => {
   try {
     const response = await api.delete<{ success: boolean; message: string }>(`/tasks/${id}`)
-    console.log('📡 Deleted task:', response)
     
     if (typeof response === 'object' && response !== null) {
       return response

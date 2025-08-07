@@ -55,7 +55,6 @@ export default function ClientsPage() {
     if (window.confirm(`Are you sure you want to delete "${clientName}"?`)) {
       const success = await deleteClient(id)
       if (success) {
-        console.log('Client deleted successfully')
       }
     }
   }
@@ -84,7 +83,6 @@ export default function ClientsPage() {
   }
 
   const handleViewDetails = (clientId: string) => {
-    console.log('Navigate to client details page:', clientId)
   }
 
   if (error) {

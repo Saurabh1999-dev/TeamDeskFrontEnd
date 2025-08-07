@@ -90,11 +90,8 @@ export const getAllProjects = async (): Promise<Project[]> => {
         role: assignment.role as ProjectRole
       }))
     }))
-    
-    console.log('📡 Projects response:', processedProjects)
     return processedProjects
   } catch (error) {
-    console.error('Error fetching projects:', error)
     throw error
   }
 }

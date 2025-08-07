@@ -57,13 +57,9 @@ export interface SingleStaffResponse {
 
 export const getAllStaff = async (): Promise<Staff[]> => {
     try {
-        // API returns direct array, not wrapped response
         const response = await api.get<Staff[]>('/staff')
-        
-        console.log('📡 Direct array response:', response)
         return response
     } catch (error) {
-        console.error('Error fetching staff:', error)
         throw error
     }
 }
