@@ -135,6 +135,14 @@ export default function LoginPage() {
             </button>
           </div>
           {errors.password && <p className="text-red-500 text-sm mt-1">{errors.password}</p>}
+            <div className="text-right mt-2">
+                            <Link
+                                href={"/forgot-password" as Route}
+                                className="text-sm text-blue-600 hover:underline font-medium"
+                            >
+                                Forgot your password?
+                            </Link>
+                        </div>
         </div>
 
         <button

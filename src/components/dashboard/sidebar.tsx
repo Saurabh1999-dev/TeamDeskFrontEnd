@@ -3,7 +3,7 @@
 
 import { usePathname } from 'next/navigation'
 import Link from 'next/link'
-import { Home, Users, FolderOpen, Building, Settings, LogOut, CheckSquare } from 'lucide-react'
+import { Home, Users, FolderOpen, Building, Calendar, LogOut, CheckSquare } from 'lucide-react'
 import { useAuthStore } from '@/stores/auth-store'
 import { UserRole, getUserRoleString } from '@/types/auth'
 import { Route } from 'next'
@@ -19,7 +19,7 @@ const navigationItems = [
     label: 'Projects', 
     path: '/projects', 
     icon: FolderOpen, 
-    roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
+    roles: [UserRole.Admin, UserRole.HR] 
   },
   { 
     label: 'Tasks', 
@@ -37,6 +37,12 @@ const navigationItems = [
     label: 'Clients', 
     path: '/clients', 
     icon: Building, 
+    roles: [UserRole.Admin, UserRole.HR] 
+  },
+  { 
+    label: 'Staff Leaves', 
+    path: '/leaves', 
+    icon: Calendar, 
     roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
   },
 ]

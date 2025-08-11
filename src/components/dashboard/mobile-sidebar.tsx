@@ -39,6 +39,12 @@ const navigationItems = [
     icon: Building, 
     roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
   },
+  { 
+    label: 'Leaves', 
+    path: '/leaves', 
+    icon: Building, 
+    roles: [UserRole.Admin, UserRole.HR, UserRole.Staff] 
+  },
 ]
 
 export function MobileSidebar({ isOpen, onClose }: MobileSidebarProps) {

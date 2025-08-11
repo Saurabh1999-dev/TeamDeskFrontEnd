@@ -133,7 +133,8 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
       '/projects': 'Projects',
       '/staff': 'Staff Management',
       '/clients': 'Client Management',
-      '/tasks': 'Task Management', // ✅ Added tasks page
+      '/tasks': 'Task Management',
+      '/leaves': 'Leaves',
     }
     return routeTitles[pathname] || 'TeamDesk'
   }
@@ -166,7 +167,6 @@ export function Navbar({ onMobileMenuToggle }: NavbarProps) {
   }
 
   const getNotificationIcon = (type: string) => {
-    debugger
     switch (type) {
       case 'task_assigned':
         return '📋'

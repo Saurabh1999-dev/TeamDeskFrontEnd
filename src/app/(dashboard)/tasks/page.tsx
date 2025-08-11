@@ -105,7 +105,6 @@ export default function TasksPage() {
     
     return matchesSearch && matchesProject && matchesStatus && matchesPriority && matchesAssignee && matchesOverdue
   })
-debugger
   const handleAddTask = () => {
     setEditingTask(null)
     setShowAddModal(true)

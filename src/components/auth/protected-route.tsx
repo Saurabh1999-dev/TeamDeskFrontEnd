@@ -10,7 +10,7 @@ interface ProtectedRouteProps {
 }
 
 export function ProtectedRoute({ children }: ProtectedRouteProps) {
-  const { isAuthenticated, isLoading, checkAuth } = useAuthStore() // Changed from 'loading' to 'isLoading'
+  const { isAuthenticated, isLoading, checkAuth } = useAuthStore()
   const [isChecking, setIsChecking] = useState(true)
   const router = useRouter()
 
@@ -38,7 +38,7 @@ export function ProtectedRoute({ children }: ProtectedRouteProps) {
   }
 
   if (!isAuthenticated) {
-    return null // Will redirect to login
+    return null
   }
 
   return <>{children}</>
