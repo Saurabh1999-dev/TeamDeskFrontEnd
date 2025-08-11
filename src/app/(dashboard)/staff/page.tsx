@@ -59,6 +59,7 @@ export default function StaffPage() {
   }, [error, clearError])
 
   const filteredStaff = staff && staff.filter(member => {
+    debugger
     const matchesSearch = 
       member.fullName.toLowerCase().includes(searchTerm.toLowerCase()) ||
       member.email.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -260,7 +261,7 @@ export default function StaffPage() {
                     <p className="text-gray-600 text-sm">{member.position}</p>
                     <div className="flex items-center gap-2 mt-1">
                       <span className={`px-2 py-1 rounded-full text-xs font-medium ${getRoleBadgeColor(member.role || 0)}`}>
-                        {getUserRoleString(member.role || 0)}
+                        {getUserRoleString(user.role || 0)}
                       </span>
                       {!member.isActive && (
                         <span className="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">
